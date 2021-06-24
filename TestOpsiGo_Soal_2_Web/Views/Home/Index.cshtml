@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <div class="row">
+        <h3>List All Repo</h3>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            No
+                        </th>
+                        <th>
+                            Nama
+                        </th>
+                        <th>
+                            Owner
+                        </th>
+                        <th>
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="bodytable">
+                    
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        Binding.GetListRepo();
+    });
+
+    var Form = {
+        OpenPopUp: function (RepoName) {
+            window.open("Home/Issue?RepoName=" + RepoName.toString(), "_blank");
+        }
+    }
+
+    var Binding = {
+        GetListRepo: function () {
+            $.ajax({
+                url: "/api/Github/ListRepo",
+                type: "GET",
+                async: false,
+            }).done(function (data, textStatus, jqXHR) {
+                if (data.length > 0) {
+                    var ctr = 1;
+                    $.each(data, function (i, item) {
+                        appended = "<tr>";
+                        appended += "<td>" + ctr.toString() + "</td>";
+                        appended += "<td>" + item.name + "</td>";
+                        appended += "<td>" + item.owner.login + "</td>";
+                        appended += "<td> <button onclick='Form.OpenPopUp(\"" + item.name + "\")'> Issue </button></td>";
+                        $("#bodytable").append(appended);
+                        ctr += 1;
+                    })
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("Fail To Retrive Data!");
+            })
+        }
+    }
+</script>

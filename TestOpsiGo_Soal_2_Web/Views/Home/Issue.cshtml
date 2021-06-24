@@ -1,0 +1,80 @@
+﻿<input type="text" id="txtRepoName" value="@ViewBag.RepoName"  style="display:none"/>
+
+<div class="container">
+    <div class="row">
+        <h3>List All Issue From Repo : @ViewBag.RepoName</h3>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Issue Number
+                        </th>
+                        <th>
+                            Issue Title
+                        </th>
+                        <th>
+                            Issue Body
+                        </th>
+                        <th>
+                            Issue Date
+                        </th>
+                        <th>
+                            Issue Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="bodyIssue">
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        Binding.GetIssue();
+    });
+
+    var Binding = {
+        GetIssue: function () {
+            $.ajax({
+                url: "/api/Github/ListIssue",
+                type: "GET",
+                data: { RepoName: $("#txtRepoName").val() },
+                async: false,
+            }).done(function (data, textStatus, jqXHR) {
+                if (data != null) {
+                    $.each(data, function (i, item) {
+                        appended = "<tr>";
+                        appended += "<td>" + item.number + "</td>";
+                        appended += "<td>" + item.title + "</td>";
+                        appended += "<td>" + item.body + "</td>";
+                        appended += "<td>" + getFormattedDate(new Date(item.createdAt)) + "</td>";
+                        appended += "<td>" + item.state.stringValue + "</td>";
+                        $("#bodyIssue").append(appended);
+                        ctr += 1;
+                    })
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("Fail To Retrive Data!");
+            })
+        }
+    }
+
+    function getFormattedDate(date) {
+        var year = date.getFullYear();
+
+        var month = (1 + date.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+
+        var day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+
+        return month + '/' + day + '/' + year;
+    }
+</script>
